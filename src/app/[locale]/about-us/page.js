@@ -42,7 +42,8 @@ export default function AboutUs() {
     })).filter(slide => slide.url) || []),
     ...(aboutData.gallery?.map(image => ({ 
       type: 'image', 
-      url: `https://setalkel.amjadshbib.com/public/${image}` 
+      url: `https://setalkel.amjadshbib.com/public/${image.image_path}` 
+
     })) || [])
   ] : [];
 
@@ -68,7 +69,6 @@ export default function AboutUs() {
     const timer = setInterval(() => {
       nextSlide();
     }, 5000);
-
     return () => clearInterval(timer);
   }, [slides.length, isVideoPlaying]);
 
@@ -137,8 +137,8 @@ export default function AboutUs() {
                       allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       onLoad={() => setIsVideoPlaying(false)}
-                      onMouseEnter={() => setIsVideoPlaying(true)} // Pause auto-slide on hover
-                      onMouseLeave={() => setIsVideoPlaying(false)} // Resume auto-slide
+                      onMouseEnter={() => setIsVideoPlaying(true)}
+                      onMouseLeave={() => setIsVideoPlaying(false)}
                     />
                   </div>
                 ) : (

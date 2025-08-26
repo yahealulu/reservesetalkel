@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useMotionValue } from 'framer-motion';
@@ -10,6 +10,7 @@ import ProductCard from '../../../../components/ProductCard';
 import { CategoryProductsSection } from '../../../../components/CategoryProducts';
 
 const CategoryPage = ({ params }) => {
+    const unwrappedParams = React.use(params);
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(20);
     const containerRef = useRef(null);
@@ -18,18 +19,18 @@ const CategoryPage = ({ params }) => {
 
     // Fetch category details
     const { data: category, isLoading: categoryLoading, error: categoryError } = useQuery({
-        queryKey: ['category', params.id],
+        queryKey: ['category', unwrappedParams.id],
         queryFn: async () => {
-            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/categories/${params.id}`);
+            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/categories/${unwrappedParams.id}`);
             return data?.data;
         },
     });
 
     // Fetch category products
     const { data: categoryProducts, isLoading: productsLoading, error: productsError } = useQuery({
-        queryKey: ['category-products', params.id],
+        queryKey: ['category-products', unwrappedParams.id],
         queryFn: async () => {
-            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/categories-products/${params.id}`);
+            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/categories-products/${unwrappedParams.id}`);
             return data?.data;
         },
     });

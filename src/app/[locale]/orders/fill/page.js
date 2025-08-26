@@ -1,6 +1,5 @@
 'use client';
-
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,15 +18,67 @@ import {
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
-// Container capacity data
+// Container capacity data based on transport type
 const CONTAINER_CAPACITIES = {
-  '20 cpm': { volume: 33, weight: 18000, freezed: { volume: 28, weight: 15000 } },
-  '40 cpm': { volume: 67, weight: 26000, freezed: { volume: 58, weight: 22000 } },
-  '40 hq': { volume: 76, weight: 26000, freezed: { volume: 75, weight: 23000 } }
+  sea: {
+    '20 cpm': { volume: 33.2, weight: 28200, freezed: { volume: 33.2, weight: 28200 } },
+    '40 cpm': { volume: 67.7, weight: 26700, freezed: { volume: 67.7, weight: 26700 } },
+    '40 hq': { volume: 76.4, weight: 26700, freezed: { volume: 76.4, weight: 26700 } }
+  },
+  land: {
+    '20 cpm': { volume: 33.2, weight: 20000, freezed: { volume: 33.2, weight: 20000 } },
+    '40 cpm': { volume: 67.7, weight: 25000, freezed: { volume: 67.7, weight: 25000 } },
+    '40 hq': { volume: 76.4, weight: 27000, freezed: { volume: 76.4, weight: 27000 } }
+  },
+  air: {
+    '20 cpm': { volume: 1.8, weight: 500, freezed: { volume: 1.8, weight: 500 } },
+    '40 cpm': { volume: 4.5, weight: 2000, freezed: { volume: 4.5, weight: 2000 } },
+    '40 hq': { volume: 11.0, weight: 6000, freezed: { volume: 11.0, weight: 6000 } }
+  }
+};
+
+// Helper function to calculate volume from dimensions - replicating the mobile app logic
+const calculateVolumeFromDimensions = (dimensions) => {
+  // Remove spaces
+  const trimmed = dimensions.trim();
+  // If it contains 'x', treat as dimensions (e.g., 20x30x40)
+  if (trimmed.includes('x')) {
+    const cleaned = trimmed.replace(/[^0-9x.]/g, '');
+    const parts = cleaned.split('x').map(e => parseFloat(e));
+    if (parts.length !== 3 || parts.some(isNaN)) {
+      console.error('Invalid dimension format:', dimensions);
+      return 0; // Return 0 instead of throwing exception to avoid breaking the UI
+    }
+    const volumeCm3 = parts[0] * parts[1] * parts[2]; // cm³
+    return volumeCm3 / 1000000; // m³
+  }
+  // Otherwise, treat as a single volume value (with or without units)
+  const numberMatch = trimmed.match(/([0-9.]+)/);
+  if (!numberMatch) {
+    console.error('Invalid dimension format:', dimensions);
+    return 0; // Return 0 instead of throwing exception
+  }
+  const value = parseFloat(numberMatch[1]);
+  // Check for units
+  if (trimmed.includes('m³') || trimmed.toLowerCase().includes('m3')) {
+    return value; // already in m³
+  } else if (trimmed.includes('cm³') || trimmed.toLowerCase().includes('cm3')) {
+    return value / 1000000; // convert cm³ to m³
+  } else {
+    // Assume value is in m³ if no unit is specified
+    return value;
+  }
+};
+
+// Helper function to generate consistent IDs - now using a counter instead of Math.random()
+let idCounter = 0;
+const generateId = () => {
+  return `id-${idCounter++}`;
 };
 
 const FillOrderPage = () => {
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false); // Changed from hydrated to isClient
   const [containers, setContainers] = useState([]);
   const [activeContainerIndex, setActiveContainerIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -36,9 +87,17 @@ const FillOrderPage = () => {
   const [orderData, setOrderData] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-
-  // Get order data from localStorage or URL params
+  const [showContainerModal, setShowContainerModal] = useState(false);
+  const [containerOptions, setContainerOptions] = useState([]);
+  const [selectedContainerSize, setSelectedContainerSize] = useState('');
+  const [selectedContainerType, setSelectedContainerType] = useState('');
+  const [selectedTransportType, setSelectedTransportType] = useState('');
+  
+  // Handle client-side only operations
   useEffect(() => {
+    setIsClient(true);
+    
+    // Get order data from localStorage
     const savedOrderData = localStorage.getItem('orderData');
     if (savedOrderData) {
       const data = JSON.parse(savedOrderData);
@@ -46,7 +105,7 @@ const FillOrderPage = () => {
       
       // Initialize with the first container from previous step
       const initialContainer = {
-        id: Date.now(),
+        id: generateId(),
         size: data.containerSize,
         type: data.containerType,
         transportType: data.transportType,
@@ -61,28 +120,26 @@ const FillOrderPage = () => {
       // Redirect back if no order data
       router.push('/orders/new');
     }
-  }, [router]);
+  }, [router]); // Only run once when component mounts
 
   // Fetch products based on country
   const { data: productsData, isLoading: productsLoading } = useQuery({
-    queryKey: ['country-products', orderData?.countryName, activeContainerIndex],
+    queryKey: ['country-products', orderData?.countryName],
     queryFn: async () => {
       if (!orderData?.countryName) return null;
       const token = localStorage.getItem('token');
-      const { data } = await axios.get(
-        `https://setalkel.amjadshbib.com/api/countries-categories?name=${orderData.countryName}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      const { data } = await axios({
+        method: 'GET',
+        url: `https://setalkel.amjadshbib.com/api/categoriesbycountry?name=${orderData.countryName}`,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
-      );
-      console.log('the token is '+token);
-      
+      });
       return data?.data?.[0] || null;
     },
-    enabled: !!orderData?.countryName,
-    // Force refetch when active container changes
+    enabled: isClient && !!orderData?.countryName, // Only run on client
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     refetchOnReconnect: false
@@ -94,19 +151,73 @@ const FillOrderPage = () => {
     queryFn: async () => {
       if (!selectedProduct?.id) return null;
       const token = localStorage.getItem('token');
-      const { data } = await axios.get(
-        `https://setalkel.amjadshbib.com/api/product-with-variants/${selectedProduct.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      const { data } = await axios({
+        method: 'GET',
+        url: `https://setalkel.amjadshbib.com/api/product-with-variants/${selectedProduct.id}`,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
-      );
-      console.log('the token is '+token);
+      });
       return data?.data || [];
     },
-    enabled: !!selectedProduct?.id
+    enabled: isClient && !!selectedProduct?.id // Only run on client
   });
+
+  // Fetch available container options from API
+  useEffect(() => {
+    if (!isClient || !orderData?.countryCode || !orderData?.transportType) return;
+    
+    const fetchCountryData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const { data } = await axios({
+          method: 'GET',
+          url: 'https://setalkel.amjadshbib.com/api/countries?type=export',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+        
+        // Find the selected country
+        const selectedCountryData = data?.data?.find(country => country.code === orderData.countryCode);
+        
+        if (selectedCountryData) {
+          // Get container options for the selected transport type
+          const availableSizes = selectedCountryData[`${orderData.transportType}_allowed_sizes`] || [];
+          
+          // Group containers by size and track which types are available
+          const options = availableSizes.reduce((acc, current) => {
+            const existingSize = acc.find(item => item.size === current.size);
+            if (!existingSize) {
+              acc.push({
+                size: current.size,
+                regular: !current.freezed,
+                freezed: current.freezed
+              });
+            } else {
+              if (current.freezed) {
+                existingSize.freezed = true;
+              } else {
+                existingSize.regular = true;
+              }
+            }
+            return acc;
+          }, []);
+          
+          setContainerOptions(options);
+        }
+      } catch (error) {
+        console.error('Error fetching country data:', error);
+        toast.error('Failed to load container options');
+      }
+    };
+    
+    fetchCountryData();
+  }, [isClient, orderData?.countryCode, orderData?.transportType]);
 
   // Submit order mutation
   const submitOrderMutation = useMutation({
@@ -140,14 +251,13 @@ const FillOrderPage = () => {
   });
 
   const activeContainer = containers[activeContainerIndex];
-  const containerCapacity = activeContainer ? CONTAINER_CAPACITIES[activeContainer.size] : null;
+  const containerCapacity = activeContainer ? CONTAINER_CAPACITIES[activeContainer.transportType]?.[activeContainer.size] : null;
   const maxVolume = containerCapacity && activeContainer.type === 'freezed' && containerCapacity.freezed 
     ? containerCapacity.freezed.volume 
     : containerCapacity?.volume || 0;
   const maxWeight = containerCapacity && activeContainer.type === 'freezed' && containerCapacity.freezed 
     ? containerCapacity.freezed.weight 
     : containerCapacity?.weight || 0;
-
   const volumePercentage = maxVolume > 0 ? (activeContainer?.totalVolume / maxVolume) * 100 : 0;
   const weightPercentage = maxWeight > 0 ? (activeContainer?.totalWeight / maxWeight) * 100 : 0;
   const fillPercentage = Math.max(volumePercentage, weightPercentage);
@@ -156,7 +266,7 @@ const FillOrderPage = () => {
   const getContainerFillPercentage = (container) => {
     if (!container) return 0;
     
-    const capacity = CONTAINER_CAPACITIES[container.size];
+    const capacity = CONTAINER_CAPACITIES[container.transportType]?.[container.size];
     if (!capacity) return 0;
     
     const maxVol = container.type === 'freezed' && capacity.freezed 
@@ -171,115 +281,67 @@ const FillOrderPage = () => {
     
     return Math.max(volPercent, wtPercent);
   };
-
-  // Filter products based on container type
-  const filteredProducts = productsData?.categories?.flatMap(category => 
-    category.products.filter(product => 
-      activeContainer?.type === 'freezed' 
-        ? product.material_property === 'frozen'
-        : product.material_property === 'dried'
-    )
-  ) || [];
-
-  const categoriesWithFilteredProducts = productsData?.categories?.map(category => ({
-    ...category,
-    products: category.products.filter(product => 
-      activeContainer?.type === 'freezed' 
-        ? product.material_property === 'frozen'
-        : product.material_property === 'dried'
-    )
-  })).filter(category => category.products.length > 0) || [];
+  
+  // Filter products based on container type using useMemo to prevent recalculation on every render
+  const [filteredProducts, categoriesWithFilteredProducts] = useMemo(() => {
+    const filtered = productsData?.categories?.flatMap(category => 
+      (category?.products || []).filter(product => 
+        activeContainer?.type === 'freezed' 
+          ? product.material_property === 'frozen'
+          : product.material_property === 'dried'
+      ) || []
+    ) || [];
+    
+    const categoriesWithFiltered = productsData?.categories?.map(category => ({
+      ...category,
+      products: (category?.products || []).filter(product => 
+        activeContainer?.type === 'freezed' 
+          ? product.material_property === 'frozen'
+          : product.material_property === 'dried'
+      ) || []
+    })).filter(category => (category?.products || []).length > 0) || [];
+    
+    return [filtered, categoriesWithFiltered];
+  }, [productsData, activeContainer?.type]);
   
   // Search functionality
   useEffect(() => {
+    if (!isClient) return;
+    
     if (searchQuery.trim() === '') {
       setSearchResults([]);
       return;
     }
     
-    const query = searchQuery.toLowerCase();
-    const results = filteredProducts.filter(product => 
-      product.name_translations?.en?.toLowerCase().includes(query) ||
-      product.description_translations?.en?.toLowerCase().includes(query) ||
-      product.product_code?.toLowerCase().includes(query)
-    );
-    
-    setSearchResults(results);
-  }, [searchQuery, filteredProducts]);
+    // Only run the search if we have products to filter
+    if (filteredProducts && filteredProducts.length > 0) {
+      const query = searchQuery.toLowerCase();
+      const results = filteredProducts.filter(product => 
+        product.name_translations?.en?.toLowerCase().includes(query) ||
+        product.description_translations?.en?.toLowerCase().includes(query) ||
+        product.product_code?.toLowerCase().includes(query)
+      );
+      
+      setSearchResults(results);
+    }
+  }, [searchQuery, isClient, filteredProducts]);
   
   // Reset category and product selection when switching containers
   useEffect(() => {
+    if (!isClient) return;
+    
     setSelectedCategory(null);
     setSelectedProduct(null);
     setSearchQuery('');
     setSearchResults([]);
-  }, [activeContainerIndex]);
-
-  // State for container selection modal
-  const [showContainerModal, setShowContainerModal] = useState(false);
-  const [containerOptions, setContainerOptions] = useState([]);
-  const [selectedContainerSize, setSelectedContainerSize] = useState('');
-  const [selectedContainerType, setSelectedContainerType] = useState('');
+  }, [activeContainerIndex, isClient]);
   
-  // This will be used to track available container options based on transport type
-
-  // Fetch available container options from API
-  useEffect(() => {
-    if (orderData?.countryCode && orderData?.transportType) {
-      // Fetch the country data to get available container options
-      const fetchCountryData = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          const { data } = await axios.get('https://setalkel.amjadshbib.com/api/countries?type=export', {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          
-          // Find the selected country
-          const selectedCountryData = data?.data?.find(country => country.code === orderData.countryCode);
-          
-          if (selectedCountryData) {
-            // Get container options for the selected transport type
-            const availableSizes = selectedCountryData[`${orderData.transportType}_allowed_sizes`] || [];
-            
-            // Group containers by size and track which types are available
-            const options = availableSizes.reduce((acc, current) => {
-              const existingSize = acc.find(item => item.size === current.size);
-              if (!existingSize) {
-                acc.push({
-                  size: current.size,
-                  regular: !current.freezed,
-                  freezed: current.freezed
-                });
-              } else {
-                if (current.freezed) {
-                  existingSize.freezed = true;
-                } else {
-                  existingSize.regular = true;
-                }
-              }
-              return acc;
-            }, []);
-            
-            setContainerOptions(options);
-          }
-        } catch (error) {
-          console.error('Error fetching country data:', error);
-          toast.error('Failed to load container options');
-        }
-      };
-      
-      fetchCountryData();
-    }
-  }, [orderData]);
-
   // Handle container selection
   const handleContainerSelection = (size, type) => {
     setSelectedContainerSize(size);
     setSelectedContainerType(type);
   };
-
+  
   // Add container with selected type
   const addContainer = () => {
     if (!orderData) return;
@@ -287,7 +349,7 @@ const FillOrderPage = () => {
     // If we're showing the modal and have a selection, add that container
     if (showContainerModal && selectedContainerSize && selectedContainerType) {
       const newContainer = {
-        id: Date.now(),
+        id: generateId(),
         size: selectedContainerSize,
         type: selectedContainerType,
         transportType: orderData.transportType,
@@ -305,47 +367,45 @@ const FillOrderPage = () => {
       setSelectedContainerType('');
     } else {
       // Show the container selection modal
+      setSelectedTransportType(orderData.transportType);
       setShowContainerModal(true);
     }
   };
-
+  
   const addProductToContainer = (variant, quantity) => {
     if (!activeContainer || quantity <= 0) return;
-
-    // Parse box dimensions to get volume in cubic meters
-    const boxVolume = parseFloat(variant.box_dimensions.replace(' m³', ''));
+    
+    // Calculate volume using the new function that replicates mobile app logic
+    const boxVolume = calculateVolumeFromDimensions(variant.box_dimensions);
     
     // Calculate total volume with packing efficiency factor (90%)
-    // This accounts for space between boxes and packing materials
     const totalVolume = boxVolume * quantity * 0.9;
     
     // Calculate total weight in kg
-    // Use gross_weight (includes packaging) multiplied by number of pieces per box and quantity of boxes
-    // Convert from grams to kilograms by dividing by 1000
-    const boxPacking = parseInt(variant.box_packing.split(' ')[0], 10) || 1; // Extract number from "6 pcs/box"
-    const totalWeight = (parseFloat(variant.gross_weight) * boxPacking * quantity) / 1000; // Convert from grams to kg
+    const boxPacking = parseInt(variant.box_packing.split(' ')[0], 10) || 1;
+    const totalWeight = (parseFloat(variant.gross_weight) * boxPacking * quantity) / 1000;
     
     // Calculate total price
     const totalPrice = variant.user_price.box_price * quantity;
-
+    
     // Check if adding this would exceed container capacity
     const newTotalVolume = activeContainer.totalVolume + totalVolume;
     const newTotalWeight = activeContainer.totalWeight + totalWeight;
     
     // Get container capacity limits
-    const containerCapacity = CONTAINER_CAPACITIES[activeContainer.size];
+    const containerCapacity = CONTAINER_CAPACITIES[activeContainer.transportType]?.[activeContainer.size];
     const maxVol = activeContainer.type === 'freezed' && containerCapacity.freezed 
       ? containerCapacity.freezed.volume 
       : containerCapacity.volume;
     const maxWt = activeContainer.type === 'freezed' && containerCapacity.freezed 
       ? containerCapacity.freezed.weight 
       : containerCapacity.weight;
-
+      
     if (newTotalVolume > maxVol || newTotalWeight > maxWt) {
       toast.error('Adding this quantity would exceed container capacity!');
       return;
     }
-
+    
     const productToAdd = {
       id: selectedProduct.id,
       variantId: variant.id,
@@ -357,12 +417,12 @@ const FillOrderPage = () => {
       totalPrice: totalPrice,
       note: ''
     };
-
+    
     const updatedContainers = [...containers];
     const existingProductIndex = updatedContainers[activeContainerIndex].products.findIndex(
       p => p.id === selectedProduct.id && p.variantId === variant.id
     );
-
+    
     if (existingProductIndex >= 0) {
       // Update existing product
       const existingProduct = updatedContainers[activeContainerIndex].products[existingProductIndex];
@@ -374,19 +434,19 @@ const FillOrderPage = () => {
       // Add new product
       updatedContainers[activeContainerIndex].products.push(productToAdd);
     }
-
+    
     // Update container totals
     updatedContainers[activeContainerIndex].totalVolume += totalVolume;
     updatedContainers[activeContainerIndex].totalWeight += totalWeight;
     updatedContainers[activeContainerIndex].totalPrice += totalPrice;
     updatedContainers[activeContainerIndex].boxCount += quantity;
-
+    
     setContainers(updatedContainers);
     setShowVariants(false);
     setSelectedProduct(null);
     toast.success('Product added to container!');
   };
-
+  
   const removeProductFromContainer = (productIndex) => {
     const updatedContainers = [...containers];
     const product = updatedContainers[activeContainerIndex].products[productIndex];
@@ -423,13 +483,13 @@ const FillOrderPage = () => {
     setContainers(updatedContainers);
     toast.success('Container deleted!');
   };
-
+  
   const submitOrder = () => {
     if (containers.length === 0 || containers.every(c => c.products.length === 0)) {
       toast.error('Please add at least one product to a container');
       return;
     }
-
+    
     const orderPayload = {
       containers: containers.map(container => ({
         box_count: container.boxCount,
@@ -448,18 +508,23 @@ const FillOrderPage = () => {
         }))
       }))
     };
-
+    
     submitOrderMutation.mutate(orderPayload);
   };
-
-  if (!orderData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-      </div>
-    );
+  
+  // Don't render anything until client-side hydration is complete
+  if (!isClient) {
+    return null;
   }
-
+  
+  // Don't render anything if order data is not available
+  if (!orderData) {
+    return null;
+  }
+  
+  // Rest of the component remains the same...
+  // (All the JSX code from the original component)
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Container Selection Modal */}
@@ -489,7 +554,7 @@ const FillOrderPage = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {containerOptions.map((sizeOption) => {
-                  const capacity = CONTAINER_CAPACITIES[sizeOption.size];
+                  const capacity = selectedTransportType ? CONTAINER_CAPACITIES[selectedTransportType][sizeOption.size] : null;
                   
                   return (
                     <div key={sizeOption.size} className="space-y-3">
@@ -530,7 +595,6 @@ const FillOrderPage = () => {
                           )}
                         </motion.button>
                       )}
-
                       {/* Freezed Container - Only show if available */}
                       {sizeOption.freezed && (
                         <motion.button
@@ -642,7 +706,7 @@ const FillOrderPage = () => {
             {submitOrderMutation.isLoading ? 'Submitting...' : 'Submit Order'}
           </button>
         </motion.div>
-
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Container Management */}
           <div className="lg:col-span-1">
@@ -660,7 +724,7 @@ const FillOrderPage = () => {
                   <Plus className="w-5 h-5" />
                 </button>
               </div>
-
+              
               <div className="space-y-4">
                 {containers.map((container, index) => (
                   <motion.div
@@ -729,7 +793,7 @@ const FillOrderPage = () => {
               </div>
             </motion.div>
           </div>
-
+          
           {/* Product Selection */}
           <div className="lg:col-span-2">
             <motion.div
@@ -847,6 +911,7 @@ const FillOrderPage = () => {
                       </button>
                     </div>
                   </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {searchQuery ? (
                       // Filter products within the selected category
@@ -943,7 +1008,7 @@ const FillOrderPage = () => {
             </motion.div>
           </div>
         </div>
-
+        
         {/* Container Contents */}
         {activeContainer && activeContainer.products.length > 0 && (
           <motion.div
@@ -989,8 +1054,8 @@ const FillOrderPage = () => {
 const VariantCard = ({ variant, onAdd, maxVolume, currentVolume, maxWeight, currentWeight }) => {
   const [quantity, setQuantity] = useState(1);
   
-  // Parse box dimensions to get volume in cubic meters
-  const boxVolume = parseFloat(variant.box_dimensions.replace(' m³', ''));
+  // Calculate volume using the new function that replicates mobile app logic
+  const boxVolume = calculateVolumeFromDimensions(variant.box_dimensions);
   
   // Get box packing information (number of pieces per box)
   const boxPacking = parseInt(variant.box_packing.split(' ')[0], 10) || 1;

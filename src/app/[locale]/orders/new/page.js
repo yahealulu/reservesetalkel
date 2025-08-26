@@ -8,26 +8,51 @@ import { Plane, Ship, Truck, Package, Thermometer, CheckCircle } from 'lucide-re
 import ReactFlagsSelect from 'react-flags-select';
 import { useRouter } from 'next/navigation';
 
-// Container capacity data
+// Container capacity data based on transport type
 const CONTAINER_CAPACITIES = {
-  '20 cpm': { volume: 33, weight: 18000, freezed: { volume: 28, weight: 15000 } },
-  '40 cpm': { volume: 67, weight: 26000, freezed: { volume: 58, weight: 22000 } },
-  '40 hq': { volume: 76, weight: 26000, freezed: { volume: 75, weight: 23000 } }
+  sea: {
+    '20 cpm': { volume: 33.2, weight: 28200, freezed: { volume: 33.2, weight: 28200 } },
+    '40 cpm': { volume: 67.7, weight: 26700, freezed: { volume: 67.7, weight: 26700 } },
+    '40 hq': { volume: 76.4, weight: 26700, freezed: { volume: 76.4, weight: 26700 } }
+  },
+  land: {
+    '20 cpm': { volume: 33.2, weight: 20000, freezed: { volume: 33.2, weight: 20000 } },
+    '40 cpm': { volume: 67.7, weight: 25000, freezed: { volume: 67.7, weight: 25000 } },
+    '40 hq': { volume: 76.4, weight: 27000, freezed: { volume: 76.4, weight: 27000 } }
+  },
+  air: {
+    '20 cpm': { volume: 1.8, weight: 500, freezed: { volume: 1.8, weight: 500 } },
+    '40 cpm': { volume: 4.5, weight: 2000, freezed: { volume: 4.5, weight: 2000 } },
+    '40 hq': { volume: 11.0, weight: 6000, freezed: { volume: 11.0, weight: 6000 } }
+  }
 };
 
 const NewOrderPage = () => {
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedTransportType, setSelectedTransportType] = useState('');
   const [selectedContainerSize, setSelectedContainerSize] = useState('');
   const [selectedContainerType, setSelectedContainerType] = useState(''); // 'regular' or 'freezed'
   const [currentStep, setCurrentStep] = useState(1);
+  
+  // Handle client-side only operations
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Fetch export countries
   const { data: countriesData, isLoading, error } = useQuery({
     queryKey: ['export-countries'],
     queryFn: async () => {
-      const { data } = await axios.get('https://setalkel.amjadshbib.com/api/countries?type=export');
+      const { data } = await axios({
+        method: 'GET',
+        url: 'https://setalkel.amjadshbib.com/api/countries?type=export',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
       return data?.data || [];
     },
   });
@@ -59,7 +84,7 @@ const NewOrderPage = () => {
   }, []);
 
   const selectedSizeData = containerOptions.find(size => size.size === selectedContainerSize);
-  const capacity = selectedContainerSize ? CONTAINER_CAPACITIES[selectedContainerSize] : null;
+  const capacity = selectedContainerSize && selectedTransportType ? CONTAINER_CAPACITIES[selectedTransportType][selectedContainerSize] : null;
   const actualCapacity = capacity && selectedContainerType === 'freezed' && capacity.freezed ? capacity.freezed : capacity;
 
   const handleCountryChange = (countryCode) => {
@@ -104,6 +129,11 @@ const NewOrderPage = () => {
     router.push('/orders/fill');
   };
 
+  // Don't render anything until client-side hydration is complete
+  if (!isClient) {
+    return null;
+  }
+  
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -298,7 +328,7 @@ const NewOrderPage = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {containerOptions.map((sizeOption) => {
-                    const capacity = CONTAINER_CAPACITIES[sizeOption.size];
+                    const capacity = selectedTransportType ? CONTAINER_CAPACITIES[selectedTransportType][sizeOption.size] : null;
                     
                     return (
                       <div key={sizeOption.size} className="space-y-3">

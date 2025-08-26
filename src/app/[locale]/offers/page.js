@@ -39,7 +39,7 @@ const OfferCard = ({ variant }) => {
             transition={{ duration: 0.3 }}
           >
             <Image
-              src={variant.image && variant.image !== 'null' ? `https://setalkel.amjadshbib.com/public${variant.image}` : '/placeholder-product.jpg'}
+              src={variant.image && variant.image !== 'null' ? `https://setalkel.amjadshbib.com/public/${variant.image}` : '/placeholder-product.jpg'}
               alt={variant.size || 'Product'}
               fill
               className="object-cover"
@@ -182,7 +182,7 @@ const OfferPage = () => {
           <div className="relative w-full min-h-[400px] bg-white rounded-2xl overflow-hidden mb-8">
             <div className="relative w-full h-full min-h-[400px]">
               <Image
-                src={`https://setalkel.amjadshbib.com/public${offerDetails.image}`}
+                src={`https://setalkel.amjadshbib.com/public/${offerDetails.image}`}
                 alt={offerDetails.offer_name?.en || 'Offer'}
                 fill
                 className="object-contain"

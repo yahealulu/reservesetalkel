@@ -1,53 +1,88 @@
-<<<<<<< HEAD
-# test
+# SETALKEL Project
 
+This is a Next.js application for SETALKEL, featuring internationalization, Firebase integration, and a responsive UI.
 
+## Getting Started
 
-## Getting started
+### Prerequisites
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- Node.js (version 16.x or higher)
+- npm or yarn
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### Installation
 
-## Add your files
+1. Clone the repository
+2. Install dependencies:
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/yahea.luoluo/test.git
-git branch -M main
-git push -uf origin main
+```bash
+npm install
 ```
 
-## Integrate with your tools
+3. Create a `.env` file in the root directory with the following variables:
 
-- [ ] [Set up project integrations](https://gitlab.com/yahea.luoluo/test/-/settings/integrations)
+```
+# API Configuration
+NEXT_PUBLIC_API_URL=https://setalkel.amjadshbib.com/api
 
-## Collaborate with your team
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=YOUR_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=YOUR_PROJECT_ID.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=YOUR_PROJECT_ID
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=YOUR_PROJECT_ID.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=YOUR_MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID=YOUR_APP_ID
+NEXT_PUBLIC_FIREBASE_VAPID_KEY=YOUR_VAPID_KEY
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+Replace the Firebase placeholder values with your actual Firebase project credentials.
 
-## Test and Deploy
+### Development
 
-Use the built-in continuous integration in GitLab.
+Run the development server:
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```bash
+npm run dev
+```
 
-***
+Open [http://localhost:3004](http://localhost:3004) with your browser to see the result.
 
-# Editing this README
+## Building for Production
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+To build the application for production:
+
+```bash
+npm run build
+```
+
+To start the production server:
+
+```bash
+npm start
+```
+
+## Deployment
+
+For detailed deployment instructions, please refer to the [DEPLOYMENT.md](./DEPLOYMENT.md) file.
+
+## Features
+
+- Internationalization with support for multiple languages
+- Firebase integration for authentication and messaging
+- Responsive UI with Tailwind CSS
+- Next.js 15 with App Router
+
+## Project Structure
+
+- `src/app/[locale]`: Internationalized routes
+- `src/components`: Reusable UI components
+- `src/context`: React context providers
+- `src/firebase`: Firebase configuration and utilities
+- `src/i18n`: Internationalization configuration
+- `public`: Static assets
+
+## Environment Variables
+
+The application uses environment variables for configuration. These are loaded from the `.env` file in the root directory. See the [DEPLOYMENT.md](./DEPLOYMENT.md) file for more information on configuring environment variables for different environments.
 
 ## Suggestions for a good README
 

@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,8 +11,9 @@ const NewProducts = () => {
   const params = useParams();
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] || 'en';
+  const isRTL = currentLocale === 'ar';
   const [showAll, setShowAll] = useState(false);
-
+  
   const { data: newProducts, error, isLoading } = useQuery({
     queryKey: ['get-new-products'],
     queryFn: async () => {
@@ -24,8 +24,10 @@ const NewProducts = () => {
 
   if (isLoading) {
     return (
-      <div className="px-4 sm:px-6 md:px-8 py-6 md:py-8">
-        <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">{currentLocale === 'ar' ? 'منتجات جديدة' : 'New Products'}</h2>
+      <div dir={isRTL ? 'rtl' : 'ltr'}>
+        <h2 className={`text-xl md:text-2xl font-semibold mb-4 md:mb-6 ${isRTL ? 'text-right font-arabic' : 'text-left'}`}>
+          {currentLocale === 'ar' ? 'منتجات جديدة' : 'New Products'}
+        </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="animate-pulse bg-gray-200 rounded-xl md:rounded-2xl overflow-hidden">
@@ -43,18 +45,26 @@ const NewProducts = () => {
 
   if (error) {
     return (
-      <div className="px-4 sm:px-6 md:px-8 py-6 md:py-8">
-        <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">{currentLocale === 'ar' ? 'منتجات جديدة' : 'New Products'}</h2>
-        <div className="text-red-500">{currentLocale === 'ar' ? 'خطأ في تحميل المنتجات الجديدة' : 'Error loading new products'}</div>
+      <div dir={isRTL ? 'rtl' : 'ltr'}>
+        <h2 className={`text-xl md:text-2xl font-semibold mb-4 md:mb-6 ${isRTL ? 'text-right font-arabic' : 'text-left'}`}>
+          {currentLocale === 'ar' ? 'منتجات جديدة' : 'New Products'}
+        </h2>
+        <div className={`text-red-500 ${isRTL ? 'text-right font-arabic' : 'text-left'}`}>
+          {currentLocale === 'ar' ? 'خطأ في تحميل المنتجات الجديدة' : 'Error loading new products'}
+        </div>
       </div>
     );
   }
 
   if (!newProducts || newProducts?.length === 0) {
     return (
-      <div className="px-4 sm:px-6 md:px-8 py-6 md:py-8">
-        <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">{currentLocale === 'ar' ? 'منتجات جديدة' : 'New Products'}</h2>
-        <div className="text-gray-500">{currentLocale === 'ar' ? 'لم يتم العثور على منتجات جديدة' : 'No new products found'}</div>
+      <div className="px-4 sm:px-6 md:px-8 py-6 md:py-8" dir={isRTL ? 'rtl' : 'ltr'}>
+        <h2 className={`text-xl md:text-2xl font-semibold mb-4 md:mb-6 ${isRTL ? 'text-right font-arabic' : 'text-left'}`}>
+          {currentLocale === 'ar' ? 'منتجات جديدة' : 'New Products'}
+        </h2>
+        <div className={`text-gray-500 ${isRTL ? 'text-right font-arabic' : 'text-left'}`}>
+          {currentLocale === 'ar' ? 'لم يتم العثور على منتجات جديدة' : 'No new products found'}
+        </div>
       </div>
     );
   }
@@ -62,9 +72,10 @@ const NewProducts = () => {
   const displayProducts = showAll ? newProducts : newProducts.slice(0, 4);
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 py-6 md:py-8">
-      <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">{currentLocale === 'ar' ? 'منتجات جديدة' : 'New Products'}</h2>
-
+    <div className="px-4 sm:px-6 md:px-8 py-6 md:py-8" dir={isRTL ? 'rtl' : 'ltr'}>
+      <h2 className={`text-xl md:text-2xl font-semibold mb-4 md:mb-6 ${isRTL ? 'text-right font-arabic' : 'text-left'}`}>
+        {currentLocale === 'ar' ? 'منتجات جديدة' : 'New Products'}
+      </h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
         {displayProducts.map((product) => (
           <Link
@@ -100,14 +111,14 @@ const NewProducts = () => {
                   </motion.div>
                   
                   {/* Badges */}
-                  <div className="absolute top-2 left-2 right-2 flex justify-between z-20">
+                  <div className={`absolute top-2 ${isRTL ? 'right-2 left-auto' : 'left-2 right-auto'} z-20 flex flex-col items-start`}>
                     {product.is_new && (
-                      <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-md shadow-md">
+                      <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-md shadow-md mb-1">
                         {currentLocale === 'ar' ? 'جديد' : 'New'}
                       </div>
                     )}
                     {!product.in_stock && (
-                      <div className="bg-red-500 text-white text-xs py-1 px-2 rounded-md shadow-md ml-auto">
+                      <div className="bg-red-500 text-white text-xs py-1 px-2 rounded-md shadow-md">
                         {currentLocale === 'ar' ? 'نفذ من المخزون' : 'Out of Stock'}
                       </div>
                     )}
@@ -116,8 +127,8 @@ const NewProducts = () => {
                   {/* Product name overlay on image */}
                   <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
                     <motion.h3
-                      className="text-white font-semibold text-sm md:text-base line-clamp-2"
-                      whileHover={{ x: 3 }}
+                      className={`text-white font-semibold text-sm md:text-base line-clamp-2 ${isRTL ? 'text-right font-arabic' : 'text-left'}`}
+                      whileHover={{ x: isRTL ? -3 : 3 }}
                       transition={{ duration: 0.2 }}
                     >
                       {product.product?.name_translations?.[currentLocale] || product.product?.name_translations?.en}
@@ -127,7 +138,7 @@ const NewProducts = () => {
                 
                 {/* Product details */}
                 <div className="p-3 flex-1 bg-white">
-                  <div className="text-xs md:text-sm text-gray-700">
+                  <div className={`text-xs md:text-sm text-gray-700 ${isRTL ? 'font-arabic' : ''}`}>
                     {product.size && (
                       <div className="flex justify-between items-center mb-1">
                         <span className="font-medium">{currentLocale === 'ar' ? 'الحجم:' : 'Size:'}</span>
@@ -147,13 +158,13 @@ const NewProducts = () => {
           </Link>
         ))}
       </div>
-
+      
       {/* Show More / Show Less Button */}
       {newProducts.length > 4 && (
         <div className="flex justify-center mt-6 md:mt-8">
           <motion.button
             onClick={() => setShowAll(!showAll)}
-            className="px-4 md:px-6 py-2 bg-[#00B207] text-white text-sm md:text-base rounded-full hover:bg-[#009706] transition-colors"
+            className={`px-4 md:px-6 py-2 bg-[#00B207] text-white text-sm md:text-base rounded-full hover:bg-[#009706] transition-colors ${isRTL ? 'font-arabic' : ''}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >

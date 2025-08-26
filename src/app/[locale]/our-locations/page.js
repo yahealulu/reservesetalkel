@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -15,7 +14,7 @@ export default function OurLocations() {
   
   // Apply RTL/LTR direction based on locale
   useLanguageDirection();
-
+  
   const { data: addressesData, isLoading, error } = useQuery({
     queryKey: ['addresses'],
     queryFn: async () => {
@@ -23,7 +22,7 @@ export default function OurLocations() {
       return data?.data || [];
     },
   });
-
+  
   if (isLoading) {
     return (
       <main className="min-h-screen bg-[#faf8f5]">
@@ -40,7 +39,7 @@ export default function OurLocations() {
       </main>
     );
   }
-
+  
   if (error) {
     return (
       <main className="min-h-screen bg-[#faf8f5]">
@@ -52,7 +51,7 @@ export default function OurLocations() {
       </main>
     );
   }
-
+  
   return (
     <main className="min-h-screen bg-[#faf8f5]">
       <div className="mx-4 md:mx-10 px-2 py-8">
@@ -63,7 +62,7 @@ export default function OurLocations() {
           </h1>
           <div className="w-24 h-1 bg-[#4c5a3c] mx-auto rounded"></div>
         </div>
-
+        
         {/* Locations Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {addressesData && addressesData.map((address) => (
@@ -83,7 +82,7 @@ export default function OurLocations() {
                     <MapPin className="w-5 h-5 text-[#a4cf6e] mt-1 flex-shrink-0" />
                     <div className="ml-3 rtl:mr-3 rtl:ml-0">
                       <p className="text-gray-700">
-                        {address.country}, {address.state}
+                        {address.country.name}, {address.state.name}
                       </p>
                     </div>
                   </div>
@@ -111,7 +110,7 @@ export default function OurLocations() {
             </div>
           ))}
         </div>
-
+        
         {/* No Locations Message */}
         {(!addressesData || addressesData.length === 0) && (
           <div className="text-center py-10">

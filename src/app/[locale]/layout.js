@@ -45,8 +45,7 @@ export default async function LocaleLayout({ children, params }) {
 
 
   return (
-    <html>
-      <body className={`${tajawal.className} relative`}>
+    <div className={`${tajawal.className} relative`}>
         <AuthProvider> 
         <OrderProvider>
           <NextIntlClientProvider messages={messages}>
@@ -58,7 +57,6 @@ export default async function LocaleLayout({ children, params }) {
           </NextIntlClientProvider>
         </OrderProvider>
         </AuthProvider>
-      </body>
-    </html>
+    </div>
   );
 }

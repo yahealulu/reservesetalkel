@@ -1,6 +1,5 @@
 'use client';
-
-import { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -15,6 +14,7 @@ import { AuthContext } from '@/context/AuthContext';
 const VariantPage = () => {
     const router = useRouter();
     const params = useParams();
+    const unwrappedParams = React.use(params);
     const pathname = usePathname();
     const currentLocale = pathname.split('/')[1];
     const [barcodeUrl, setBarcodeUrl] = useState('');
@@ -22,7 +22,7 @@ const VariantPage = () => {
 
     // Fetch variant data
     const { data: variant, isLoading, error } = useQuery({
-        queryKey: ['variant', params.product, params.variant, !!user],
+        queryKey: ['variant', unwrappedParams.product, unwrappedParams.variant, !!user],
         queryFn: async () => {
             let response;
             
@@ -30,7 +30,7 @@ const VariantPage = () => {
                 // User is logged in, use the authenticated API endpoint
                 const token = localStorage.getItem('token');
                 response = await axios.get(
-                    `https://setalkel.amjadshbib.com/api/product-with-variants/${params.variant}`,
+                    `https://setalkel.amjadshbib.com/api/product-with-variants/${unwrappedParams.variant}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`
@@ -42,12 +42,12 @@ const VariantPage = () => {
             } else {
                 // User is not logged in, use the regular API endpoint
                 response = await axios.get(
-                    `https://setalkel.amjadshbib.com/api/products/${params.product}/variants/${params.variant}`
+                    `https://setalkel.amjadshbib.com/api/products/${unwrappedParams.product}/variants/${unwrappedParams.variant}`
                 );
                 return response.data?.data;
             }
         },
-        enabled: !!params.product && !!params.variant && !isAuthLoading
+        enabled: !!unwrappedParams.product && !!unwrappedParams.variant && !isAuthLoading
     });
 
     // Generate barcode image
@@ -250,7 +250,7 @@ const VariantPage = () => {
                     {/* Action Buttons */}
                     <div className="flex space-x-4">
                         <Link 
-                            href={`/${params.locale}/${params.product}`}
+                            href={`/${unwrappedParams.locale}/${unwrappedParams.product}`}
                             className="flex-1 bg-indigo-600 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl font-medium hover:bg-indigo-700 transition-colors text-center text-sm sm:text-base"
                         >
                             {currentLocale === 'ar' ? 'العودة إلى المنتج' : 'Back to Product'}

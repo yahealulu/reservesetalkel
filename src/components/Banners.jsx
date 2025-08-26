@@ -70,10 +70,11 @@ const Banners = () => {
   if (banners.length === 0) {
     return (
       <div className="mx-auto max-w-screen-2xl px-0 sm:px-2 md:px-4 mb-6">
-        <div className="w-full rounded-lg overflow-hidden shadow-lg bg-gray-100">
+        <div className="w-full rounded-xl overflow-hidden shadow-xl bg-gradient-to-r from-gray-200 to-gray-300 border border-gray-300 animate-pulse">
           <div className="relative w-full overflow-hidden" style={{ paddingTop: 'calc(1000 / 3000 * 100%)' }}>
-            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-200 animate-pulse">
-              <div className="text-gray-500 font-medium">Loading banners...</div>
+            <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
+              <div className="text-gray-600 font-bold text-lg md:text-xl mb-2">No banners available</div>
+              <div className="text-gray-500 text-sm md:text-base">Loading banners...</div>
             </div>
           </div>
         </div>
@@ -104,7 +105,7 @@ const Banners = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 1, ease: "easeInOut" }}
           className="w-full h-full"
         >
          {imageUrl ? (
@@ -112,7 +113,7 @@ const Banners = () => {
     <img
       src={imageUrl}
       alt={`Banner ${current.id}`}
-      className="absolute top-0 left-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
+      className="absolute top-0 left-0 w-full h-full object-cover object-center transition-all duration-1000 hover:scale-110"
       loading="eager"
       onError={(e) => {
         console.error('Error loading banner image:', e);
@@ -120,18 +121,34 @@ const Banners = () => {
         e.target.src = 'https://via.placeholder.com/3000x1000?text=Banner+Image+Not+Available';
       }}
     />
-    {/* Add a subtle overlay for better text visibility if needed */}
-    <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+    {/* Enhanced overlay with gradient for better text visibility */}
+    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70 hover:opacity-80 transition-opacity duration-500"></div>
+    {/* Banner title overlay */}
+    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 transform translate-y-0 hover:-translate-y-1 transition-transform duration-300">
+      <div className="max-w-2xl mx-auto text-white">
+        <h3 className="text-xl md:text-2xl font-bold mb-1 drop-shadow-lg">{current.title || `Banner ${current.id}`}</h3>
+        <p className="text-sm md:text-base opacity-90 drop-shadow-md">{current.description || ""}</p>
+      </div>
+    </div>
   </div>
 ) : videoUrl ? (
-            <iframe
-              src={videoUrl}
-              title={`YouTube video ${videoId}`}
-              className="w-full h-full"
-              frameBorder="0"
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-            ></iframe>
+            <div className="relative w-full h-full">
+              <iframe
+                src={videoUrl}
+                title={`YouTube video ${videoId}`}
+                className="w-full h-full"
+                frameBorder="0"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+              ></iframe>
+              {/* YouTube overlay with title */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 hover:opacity-90 transition-opacity duration-500">
+                <div className="max-w-2xl mx-auto text-white">
+                  <h3 className="text-xl md:text-2xl font-bold mb-1 drop-shadow-lg">{current.title || `Banner ${current.id}`}</h3>
+                  <p className="text-sm md:text-base opacity-90 drop-shadow-md">{current.description || ""}</p>
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500">
               No media available
@@ -140,15 +157,17 @@ const Banners = () => {
         </motion.div>
       </AnimatePresence>
 
-      {/* Arrows - Enhanced for better visibility */}
-      <button
+      {/* Enhanced Navigation Arrows */}
+      <motion.button
         onClick={handlePrev}
-        className="absolute left-3 md:left-5 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-30 hover:bg-opacity-50 text-white p-1.5 md:p-3 rounded-full shadow-lg transition-all duration-300 z-10"
+        className="absolute left-3 md:left-5 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 text-white p-2 md:p-3 rounded-full shadow-xl transition-all duration-300 z-10 flex items-center justify-center backdrop-blur-sm"
         aria-label="Previous banner"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 md:h-6 md:w-6"
+          className="h-6 w-6 md:h-8 md:w-8"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -156,15 +175,17 @@ const Banners = () => {
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-      </button>
-      <button
+      </motion.button>
+      <motion.button
         onClick={handleNext}
-        className="absolute right-3 md:right-5 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-30 hover:bg-opacity-50 text-white p-1.5 md:p-3 rounded-full shadow-lg transition-all duration-300 z-10"
+        className="absolute right-3 md:right-5 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-20 hover:bg-opacity-40 text-white p-2 md:p-3 rounded-full shadow-xl transition-all duration-300 z-10 flex items-center justify-center backdrop-blur-sm"
         aria-label="Next banner"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 md:h-6 md:w-6"
+          className="h-6 w-6 md:h-8 md:w-8"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -172,22 +193,37 @@ const Banners = () => {
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
-      </button>
+      </motion.button>
       
-      {/* Banner Indicators */}
-      <div className="absolute bottom-3 left-0 right-0 flex justify-center space-x-2 z-10">
+      {/* Enhanced Banner Indicators */}
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2 md:space-x-3 z-10">
         {banners.map((_, index) => (
-          <button
+          <motion.button
             key={index}
             onClick={() => {
               clearTimeout(timerRef.current);
               setCurrentIndex(index);
               setKey((prev) => prev + 1);
             }}
-            className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-white scale-110' : 'bg-white bg-opacity-50 hover:bg-opacity-75'}`}
+            className={`w-3 h-3 md:w-4 md:h-4 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-white scale-125' : 'bg-white bg-opacity-40 hover:bg-opacity-70'}`}
             aria-label={`Go to banner ${index + 1}`}
+            whileHover={{ scale: 1.2 }}
           />
         ))}
+      </div>
+      
+      {/* Progress Bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-black bg-opacity-50">
+        <motion.div 
+          className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-r"
+          initial={{ width: "0%" }}
+          animate={{ width: "100%" }}
+          transition={{ 
+            duration: banners[currentIndex]?.show_duration || 15, 
+            ease: "linear",
+            repeat: Infinity
+          }}
+        />
       </div>
       </div>
     </div>

@@ -134,10 +134,7 @@ const Header = () => {
                   <Phone className="w-4 h-4" />
                   <span>(956) 229-7908</span>
                 </Link>
-                <Link href={`/${currentLocale}/wishlist`} className="flex items-center gap-1 text-white/90 hover:text-white transition-colors">
-                  <Heart className="w-4 h-4" />
-                  <span>{currentLocale === 'ar' ? 'المفضلة' : 'Wishlist'}</span>
-                </Link>
+              
                 
                 <div className="h-4 w-[1px] bg-white/30"></div>
                 
@@ -394,16 +391,7 @@ const Header = () => {
                         <span>{currentLocale === 'ar' ? 'مواقع المتاجر' : 'Store Locations'}</span>
                       </div>
                     </Link>
-                    <Link 
-                      href={`/${currentLocale}/wishlist`} 
-                      className="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded-lg"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Heart className="w-4 h-4" />
-                        <span>{currentLocale === 'ar' ? 'المفضلة' : 'Wishlist'}</span>
-                      </div>
-                    </Link>
+                   
                     
                     <div className="border-t border-gray-200 my-4"></div>
                     
