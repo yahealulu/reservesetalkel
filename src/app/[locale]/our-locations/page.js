@@ -18,7 +18,7 @@ export default function OurLocations() {
   const { data: addressesData, isLoading, error } = useQuery({
     queryKey: ['addresses'],
     queryFn: async () => {
-      const { data } = await axios.get('https://setalkel.amjadshbib.com/api/address');
+      const { data } = await axios.get('https://st.amjadshbib.com/api/address');
       return data?.data || [];
     },
   });

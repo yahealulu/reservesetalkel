@@ -19,7 +19,7 @@ export default function BiteDetailsPage({ params }) {
   const { data: biteData, isLoading: biteLoading, error: biteError } = useQuery({
     queryKey: ['bite', id],
     queryFn: async () => {
-      const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/bites/${id}`);
+      const { data } = await axios.get(`https://st.amjadshbib.com/api/bites/${id}`);
       return data?.data;
     },
   });
@@ -33,7 +33,7 @@ export default function BiteDetailsPage({ params }) {
       const currentStep = biteData.preparation_translations_steps.find(step => step.step_number === activeStep);
       if (!currentStep || !currentStep.product_id) return null;
       
-      const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/products/${currentStep.product_id}`);
+      const { data } = await axios.get(`https://st.amjadshbib.com/api/products/${currentStep.product_id}`);
       return data?.data;
     },
     enabled: !!biteData?.preparation_translations_steps,
@@ -75,10 +75,10 @@ export default function BiteDetailsPage({ params }) {
   // Gallery slides from images and video
   const slides = biteData ? [
     ...(biteData.video_url ? [{ type: 'video', url: convertToEmbedUrl(biteData.video_url) }] : []),
-    ...(biteData.image ? [{ type: 'image', url: `https://setalkel.amjadshbib.com/public/${biteData.image}` }] : []),
+    ...(biteData.image ? [{ type: 'image', url: `https://st.amjadshbib.com/api/public/${biteData.image}` }] : []),
     ...(biteData.gallery ? biteData.gallery.map(img => ({ 
       type: 'image', 
-      url: `https://setalkel.amjadshbib.com/public/${img}` 
+      url: `https://st.amjadshbib.com/api/public/${img}` 
     })) : [])
   ] : [];
 
@@ -321,7 +321,7 @@ export default function BiteDetailsPage({ params }) {
                         {step.image ? (
                           <div className="relative h-64">
                             <Image
-                              src={`https://setalkel.amjadshbib.com/public/${step.image}`}
+                              src={`https://st.amjadshbib.com/api/public/${step.image}`}
                               alt={`Step ${step.step_number}`}
                               fill
                               className="object-cover"
@@ -365,7 +365,7 @@ export default function BiteDetailsPage({ params }) {
                             <div className="relative h-40 bg-gray-100">
                               {productData.image ? (
                                 <Image
-                                  src={`https://setalkel.amjadshbib.com/public/${productData.image}`}
+                                  src={`https://st.amjadshbib.com/api/public/${productData.image}`}
                                   alt={getLocalizedText(productData.name_translations)}
                                   fill
                                   className="object-cover"

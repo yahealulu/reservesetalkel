@@ -23,7 +23,7 @@ export default function VerifyEmail() {
     const verifyEmailMutation = useMutation({
         mutationFn: async (data) => {
             console.log('📤 Sending verification request with data:', data)
-            const response = await axios.post('https://setalkel.amjadshbib.com/api/verify-email', {
+            const response = await axios.post('https://st.amjadshbib.com/api/verify-email', {
                 email: data.email,
                 code: data.code
             })

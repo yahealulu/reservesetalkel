@@ -92,7 +92,7 @@ export default function ContactUs() {
         formDataToSend.append('visitor_interests', selectedInterests.join(', '));
       }
 
-      const { data } = await axios.post('https://setalkel.amjadshbib.com/api/ContactUs', formDataToSend, {
+      const { data } = await axios.post('https://st.amjadshbib.com/api/ContactUs', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -22,7 +22,7 @@ npm install
 
 ```
 # API Configuration
-NEXT_PUBLIC_API_URL=https://setalkel.amjadshbib.com/api
+NEXT_PUBLIC_API_URL=https://st.amjadshbib.com/api
 
 # Firebase Configuration
 NEXT_PUBLIC_FIREBASE_API_KEY=YOUR_API_KEY

@@ -25,7 +25,7 @@ const SearchPage = () => {
         queryKey: ['search-products', query],
         queryFn: async () => {
             if (!query.trim()) return { data: [] };
-            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/searchproduct?q=${encodeURIComponent(query)}`);
+            const { data } = await axios.get(`https://st.amjadshbib.com/api/searchproduct?q=${encodeURIComponent(query)}`);
             return data;
         },
         enabled: !!query.trim(),

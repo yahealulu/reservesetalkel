@@ -18,7 +18,7 @@
    Create or update the `.env` file in the project root with the following variables:
    ```
    # API Configuration
-   NEXT_PUBLIC_API_URL=https://setalkel.amjadshbib.com/api
+   NEXT_PUBLIC_API_URL=https://st.amjadshbib.com/api
    # Or your custom API URL if you're deploying your own backend
 
    # Firebase Configuration
@@ -93,7 +93,7 @@ Update the Firebase configuration in `src/firebase/firebase.js` and `public/fire
 
 ### API URL Configuration
 
-The application is currently configured to use `https://setalkel.amjadshbib.com/api/` as the API base URL. If you need to use a different API endpoint, update the `.env` file and ensure all API calls in the codebase use the environment variable.
+The application is currently configured to use `https://st.amjadshbib.com/api/` as the API base URL. If you need to use a different API endpoint, update the `.env` file and ensure all API calls in the codebase use the environment variable.
 
 ## Troubleshooting
 

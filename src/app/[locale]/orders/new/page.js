@@ -47,7 +47,7 @@ const NewOrderPage = () => {
     queryFn: async () => {
       const { data } = await axios({
         method: 'GET',
-        url: 'https://setalkel.amjadshbib.com/api/countries?type=export',
+        url: 'https://st.amjadshbib.com/api/countries?type=export',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'

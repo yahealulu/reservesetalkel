@@ -69,7 +69,7 @@ export default function Register() {
 
             try {
                 const response = await axios.post(
-                    'https://setalkel.amjadshbib.com/api/registeragent',
+                    'https://st.amjadshbib.com/api/registeragent',
                     formDataObj,
                     { headers: { 'Content-Type': 'multipart/form-data' } }
                 )

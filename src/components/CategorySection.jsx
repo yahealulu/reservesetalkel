@@ -52,7 +52,7 @@ const CategorySection = ({ category, selectedVariants, setSelectedVariants, hove
                             {/* Product Image */}
                             <div className="relative h-48">
                                 <Image
-                                    src={`https://setalkel.amjadshbib.com/public/${product.image}`}
+                                    src={`https://st.amjadshbib.com/api/public/${product.image}`}
                                     alt={product.name_translations?.en}
                                     fill
                                     className="object-contain"

@@ -22,7 +22,7 @@ export default function Login() {
     
     const loginMutation = useMutation({
         mutationFn: async (credentials) => {
-            const response = await axios.post('https://setalkel.amjadshbib.com/api/login', credentials)
+            const response = await axios.post('https://st.amjadshbib.com/api/login', credentials)
             return response.data
         },
         onSuccess: (data) => {

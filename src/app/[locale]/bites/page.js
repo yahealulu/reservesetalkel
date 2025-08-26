@@ -15,7 +15,7 @@ export default function BitesPage() {
   const { data: bitesData, isLoading, error } = useQuery({
     queryKey: ['bites'],
     queryFn: async () => {
-      const { data } = await axios.get('https://setalkel.amjadshbib.com/api/bites');
+      const { data } = await axios.get('https://st.amjadshbib.com/api/bites');
       return data?.data;
     },
   });
@@ -121,7 +121,7 @@ export default function BitesPage() {
                 <div className="relative h-48 bg-gray-100">
                   {bite.image ? (
                     <Image
-                      src={`https://setalkel.amjadshbib.com/public/${bite.image}`}
+                      src={`https://st.amjadshbib.com/api/public/${bite.image}`}
                       alt={getLocalizedText(bite.name_translations)}
                       fill
                       className="object-cover"

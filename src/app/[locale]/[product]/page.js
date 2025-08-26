@@ -25,7 +25,7 @@ const ProductPage = ({ params }) => {
     const { data: product, isLoading: productLoading, error: productError } = useQuery({
         queryKey: ['product', resolvedParams.product],
         queryFn: async () => {
-            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/products/${resolvedParams.product}`);
+            const { data } = await axios.get(`https://st.amjadshbib.com/api/products/${resolvedParams.product}`);
             return data?.data;
         }
     });
@@ -33,7 +33,7 @@ const ProductPage = ({ params }) => {
     const { data: variants, isLoading: variantsLoading } = useQuery({
         queryKey: ['variants', resolvedParams.product],
         queryFn: async () => {
-            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/products/${resolvedParams.product}/variants`);
+            const { data } = await axios.get(`https://st.amjadshbib.com/api/products/${resolvedParams.product}/variants`);
             return data?.data;
         },
         onSuccess: (data) => {
@@ -52,8 +52,8 @@ const ProductPage = ({ params }) => {
             const token = localStorage.getItem('token');
             const headers = token ? { Authorization: `Bearer ${token}` } : {};
             const endpoint = user 
-                ? `https://setalkel.amjadshbib.com/api/product-with-variants/${selectedVariant.id}`
-                : `https://setalkel.amjadshbib.com/api/products/${resolvedParams.product}/variants/${selectedVariant.id}`;
+                ? `https://st.amjadshbib.com/api/product-with-variants/${selectedVariant.id}`
+                : `https://st.amjadshbib.com/api/products/${resolvedParams.product}/variants/${selectedVariant.id}`;
                 
             const { data } = await axios.get(endpoint, { headers });
             
@@ -73,7 +73,7 @@ const ProductPage = ({ params }) => {
     const { data: relatedProducts, isLoading: relatedLoading } = useQuery({
         queryKey: ['relatedProducts', resolvedParams.product],
         queryFn: async () => {
-            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/relatedproducts/${resolvedParams.product}`);
+            const { data } = await axios.get(`https://st.amjadshbib.com/api/relatedproducts/${resolvedParams.product}`);
             return data?.data;
         },
         enabled: !!resolvedParams.product,
@@ -195,8 +195,8 @@ const ProductPage = ({ params }) => {
                                 >
                                     <Image
                                         src={selectedVariant?.image 
-                                            ? `https://setalkel.amjadshbib.com/public/${selectedVariant.image}` 
-                                            : `https://setalkel.amjadshbib.com/public/${product?.image}`}
+                                            ? `https://st.amjadshbib.com/api/public/${selectedVariant.image}` 
+                                            : `https://st.amjadshbib.com/api/public/${product?.image}`}
                                         alt={(selectedVariant ? `${product?.name_translations?.en} - ${selectedVariant.size}` : product?.name_translations?.en) || 'Product'}
                                         fill
                                         className="object-contain p-4"
@@ -231,7 +231,7 @@ const ProductPage = ({ params }) => {
                                     >
                                         <div className="relative h-12 sm:h-16 mb-1 sm:mb-2">
                                             <Image
-                                                src={`https://setalkel.amjadshbib.com/public/${product?.image}`}
+                                                src={`https://st.amjadshbib.com/api/public/${product?.image}`}
                                                 alt={product?.name_translations?.en || 'Product'}
                                                 fill
                                                 className="object-contain"
@@ -256,7 +256,7 @@ const ProductPage = ({ params }) => {
                                         >
                                             <div className="relative h-12 sm:h-16 mb-1 sm:mb-2">
                                                 <Image
-                                                    src={`https://setalkel.amjadshbib.com/public/${variant.image}`}
+                                                    src={`https://st.amjadshbib.com/api/public/${variant.image}`}
                                                     alt={`${product?.name_translations?.en} - ${variant.size}`}
                                                     fill
                                                     className="object-contain"
@@ -478,7 +478,7 @@ const ProductPage = ({ params }) => {
                                         <div className="relative h-32 sm:h-40 md:h-48">
                                             {relatedProduct.image ? (
                                                 <Image
-                                                    src={`https://setalkel.amjadshbib.com/public/${relatedProduct.image}`}
+                                                    src={`https://st.amjadshbib.com/api/public/${relatedProduct.image}`}
                                                     alt={relatedProduct.name_translations?.en || 'Related Product'}
                                                     fill
                                                     className="object-contain p-2"

@@ -21,7 +21,7 @@ const CategoryPage = ({ params }) => {
     const { data: category, isLoading: categoryLoading, error: categoryError } = useQuery({
         queryKey: ['category', unwrappedParams.id],
         queryFn: async () => {
-            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/categories/${unwrappedParams.id}`);
+            const { data } = await axios.get(`https://st.amjadshbib.com/api/categories/${unwrappedParams.id}`);
             return data?.data;
         },
     });
@@ -30,7 +30,7 @@ const CategoryPage = ({ params }) => {
     const { data: categoryProducts, isLoading: productsLoading, error: productsError } = useQuery({
         queryKey: ['category-products', unwrappedParams.id],
         queryFn: async () => {
-            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/categories-products/${unwrappedParams.id}`);
+            const { data } = await axios.get(`https://st.amjadshbib.com/api/categories-products/${unwrappedParams.id}`);
             return data?.data;
         },
     });
@@ -109,7 +109,7 @@ const CategoryPage = ({ params }) => {
             {/* Category Banner */}
             <div className="relative h-[200px] sm:h-[250px] md:h-[300px] w-full rounded-xl md:rounded-2xl overflow-hidden mb-4 sm:mb-6 md:mb-8">
                 <Image
-                    src={`https://setalkel.amjadshbib.com/public/${category.image}`}
+                    src={`https://st.amjadshbib.com/api/public/${category.image}`}
                     alt={category.name_translations?.en || 'Category'}
                     fill
                     className="object-cover"

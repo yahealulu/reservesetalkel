@@ -121,7 +121,7 @@ const FillOrderPage = () => {
       router.push('/orders/new');
     }
   }, [router]); // Only run once when component mounts
-
+  
   // Fetch products based on country
   const { data: productsData, isLoading: productsLoading } = useQuery({
     queryKey: ['country-products', orderData?.countryName],
@@ -130,7 +130,7 @@ const FillOrderPage = () => {
       const token = localStorage.getItem('token');
       const { data } = await axios({
         method: 'GET',
-        url: `https://setalkel.amjadshbib.com/api/categoriesbycountry?name=${orderData.countryName}`,
+        url: `https://st.amjadshbib.com/api/categoriesbycountry?name=${orderData.countryName}`,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ const FillOrderPage = () => {
     refetchOnMount: true,
     refetchOnReconnect: false
   });
-
+  
   // Fetch product variants
   const { data: variantsData, isLoading: variantsLoading } = useQuery({
     queryKey: ['product-variants', selectedProduct?.id],
@@ -153,7 +153,7 @@ const FillOrderPage = () => {
       const token = localStorage.getItem('token');
       const { data } = await axios({
         method: 'GET',
-        url: `https://setalkel.amjadshbib.com/api/product-with-variants/${selectedProduct.id}`,
+        url: `https://st.amjadshbib.com/api/product-with-variants/${selectedProduct.id}`,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ const FillOrderPage = () => {
     },
     enabled: isClient && !!selectedProduct?.id // Only run on client
   });
-
+  
   // Fetch available container options from API
   useEffect(() => {
     if (!isClient || !orderData?.countryCode || !orderData?.transportType) return;
@@ -174,7 +174,7 @@ const FillOrderPage = () => {
         const token = localStorage.getItem('token');
         const { data } = await axios({
           method: 'GET',
-          url: 'https://setalkel.amjadshbib.com/api/countries?type=export',
+          url: 'https://st.amjadshbib.com/api/countries?type=export',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -218,13 +218,13 @@ const FillOrderPage = () => {
     
     fetchCountryData();
   }, [isClient, orderData?.countryCode, orderData?.transportType]);
-
+  
   // Submit order mutation
   const submitOrderMutation = useMutation({
     mutationFn: async (orderPayload) => {
       const token = localStorage.getItem('token');
       const { data } = await axios.post(
-        'https://setalkel.amjadshbib.com/api/container',
+        'https://st.amjadshbib.com/api/container',
         orderPayload,
         {
           headers: {
@@ -249,7 +249,7 @@ const FillOrderPage = () => {
       console.error('Order submission error:', error);
     }
   });
-
+  
   const activeContainer = containers[activeContainerIndex];
   const containerCapacity = activeContainer ? CONTAINER_CAPACITIES[activeContainer.transportType]?.[activeContainer.size] : null;
   const maxVolume = containerCapacity && activeContainer.type === 'freezed' && containerCapacity.freezed 
@@ -375,15 +375,35 @@ const FillOrderPage = () => {
   const addProductToContainer = (variant, quantity) => {
     if (!activeContainer || quantity <= 0) return;
     
-    // Calculate volume using the new function that replicates mobile app logic
+    // Check if the variant has a price
+    if (!variant.user_price || !variant.user_price.box_price) {
+      toast.error('This variant does not have a price set.');
+      return;
+    }
+    
+    // Parse box packing to get the number of pieces per box
+    const boxPackingMatch = variant.box_packing.match(/\d+/);
+    const boxPacking = boxPackingMatch ? parseInt(boxPackingMatch[0], 10) : 1;
+    
+    // Calculate volume using the helper function
     const boxVolume = calculateVolumeFromDimensions(variant.box_dimensions);
+    
+    // Check if volume is valid
+    if (boxVolume <= 0) {
+      toast.error('Invalid box dimensions for this variant.');
+      return;
+    }
     
     // Calculate total volume with packing efficiency factor (90%)
     const totalVolume = boxVolume * quantity * 0.9;
     
     // Calculate total weight in kg
-    const boxPacking = parseInt(variant.box_packing.split(' ')[0], 10) || 1;
-    const totalWeight = (parseFloat(variant.gross_weight) * boxPacking * quantity) / 1000;
+    const grossWeightGrams = parseFloat(variant.gross_weight) || 0;
+    if (grossWeightGrams <= 0) {
+      toast.error('Invalid weight for this variant.');
+      return;
+    }
+    const totalWeight = (grossWeightGrams * boxPacking * quantity) / 1000;
     
     // Calculate total price
     const totalPrice = variant.user_price.box_price * quantity;
@@ -521,9 +541,6 @@ const FillOrderPage = () => {
   if (!orderData) {
     return null;
   }
-  
-  // Rest of the component remains the same...
-  // (All the JSX code from the original component)
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -838,7 +855,7 @@ const FillOrderPage = () => {
                               className="p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-indigo-300 hover:bg-indigo-50 transition-all"
                             >
                               <img
-                                src={`https://setalkel.amjadshbib.com/public/${product.image}`}
+                                src={`https://st.amjadshbib.com/api/public/${product.image}`}
                                 alt={product.name_translations.en}
                                 className="w-full h-32 object-cover rounded-lg mb-3"
                               />
@@ -870,7 +887,7 @@ const FillOrderPage = () => {
                           className="p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-indigo-300 hover:bg-indigo-50 transition-all"
                         >
                           <img
-                            src={`https://setalkel.amjadshbib.com/public${category.image}`}
+                            src={`https://st.amjadshbib.com/api/public${category.image}`}
                             alt={category.name_translations.en}
                             className="w-full h-32 object-cover rounded-lg mb-3"
                           />
@@ -930,7 +947,7 @@ const FillOrderPage = () => {
                             className="p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-indigo-300 hover:bg-indigo-50 transition-all"
                           >
                             <img
-                              src={`https://setalkel.amjadshbib.com/public/${product.image}`}
+                              src={`https://st.amjadshbib.com/api/public/${product.image}`}
                               alt={product.name_translations.en}
                               className="w-full h-32 object-cover rounded-lg mb-3"
                             />
@@ -955,7 +972,7 @@ const FillOrderPage = () => {
                           className="p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-indigo-300 hover:bg-indigo-50 transition-all"
                         >
                           <img
-                            src={`https://setalkel.amjadshbib.com/public/${product.image}`}
+                            src={`https://st.amjadshbib.com/api/public/${product.image}`}
                             alt={product.name_translations.en}
                             className="w-full h-32 object-cover rounded-lg mb-3"
                           />
@@ -1054,15 +1071,16 @@ const FillOrderPage = () => {
 const VariantCard = ({ variant, onAdd, maxVolume, currentVolume, maxWeight, currentWeight }) => {
   const [quantity, setQuantity] = useState(1);
   
-  // Calculate volume using the new function that replicates mobile app logic
+  // Parse box packing to get the number of pieces per box
+  const boxPackingMatch = variant.box_packing.match(/\d+/);
+  const boxPacking = boxPackingMatch ? parseInt(boxPackingMatch[0], 10) : 1;
+  
+  // Calculate volume using the helper function
   const boxVolume = calculateVolumeFromDimensions(variant.box_dimensions);
   
-  // Get box packing information (number of pieces per box)
-  const boxPacking = parseInt(variant.box_packing.split(' ')[0], 10) || 1;
-  
-  // Calculate weight per box (in kg)
-  // Convert from grams to kilograms by dividing by 1000
-  const weightPerBox = (parseFloat(variant.gross_weight) * boxPacking) / 1000;
+  // Calculate weight per box (in kg) - convert from grams to kg
+  const grossWeightGrams = parseFloat(variant.gross_weight) || 0;
+  const weightPerBox = (grossWeightGrams * boxPacking) / 1000;
   
   // Calculate remaining capacity
   const remainingVolume = maxVolume - currentVolume;
@@ -1073,8 +1091,18 @@ const VariantCard = ({ variant, onAdd, maxVolume, currentVolume, maxWeight, curr
   const maxBoxesByWeight = Math.floor(remainingWeight / weightPerBox);
   const maxPossibleBoxes = Math.min(maxBoxesByVolume, maxBoxesByWeight);
   
-  // Calculate total price
-  const totalPrice = variant.user_price.box_price * quantity;
+  // Check if the variant has a valid price
+  const hasPrice = variant.user_price && variant.user_price.box_price != null;
+  
+  // Check if the variant has valid weight and volume
+  const hasValidWeight = grossWeightGrams > 0;
+  const hasValidVolume = boxVolume > 0;
+  
+  // Calculate total price if available
+  const totalPrice = hasPrice ? variant.user_price.box_price * quantity : 0;
+  
+  // Determine if the variant can be added
+  const canAdd = hasPrice && hasValidWeight && hasValidVolume && quantity > 0 && quantity <= maxPossibleBoxes;
   
   return (
     <div className="p-4 border-2 border-gray-200 rounded-xl">
@@ -1083,14 +1111,28 @@ const VariantCard = ({ variant, onAdd, maxVolume, currentVolume, maxWeight, curr
           <h3 className="font-semibold text-gray-800">{variant.size}</h3>
           <p className="text-sm text-gray-600">{variant.packaging} - {variant.box_packing}</p>
           <p className="text-sm text-gray-600">Box Volume: {variant.box_dimensions}</p>
-          <p className="text-sm text-gray-600">Weight: {variant.gross_weight}g/piece × {boxPacking} pieces = {weightPerBox.toFixed(2)}kg/box</p>
+          <p className="text-sm text-gray-600">
+            Weight: {grossWeightGrams}g/piece × {boxPacking} pieces = {weightPerBox.toFixed(2)}kg/box
+          </p>
+          {!hasValidWeight && (
+            <p className="text-sm text-red-500">Weight information not available</p>
+          )}
+          {!hasValidVolume && (
+            <p className="text-sm text-red-500">Volume information not available</p>
+          )}
         </div>
         <div className="text-right">
-          <p className="font-semibold text-green-600">${variant.user_price.box_price}/box</p>
-          <p className="text-sm text-gray-600">Max: {maxPossibleBoxes} boxes</p>
-          <p className="text-xs text-gray-500">
-            {maxBoxesByVolume < maxBoxesByWeight ? 'Limited by volume' : 'Limited by weight'}
-          </p>
+          {hasPrice ? (
+            <>
+              <p className="font-semibold text-green-600">${variant.user_price.box_price}/box</p>
+              <p className="text-sm text-gray-600">Max: {maxPossibleBoxes} boxes</p>
+              <p className="text-xs text-gray-500">
+                {maxBoxesByVolume < maxBoxesByWeight ? 'Limited by volume' : 'Limited by weight'}
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-red-500">Price not available</p>
+          )}
         </div>
       </div>
       
@@ -1130,7 +1172,7 @@ const VariantCard = ({ variant, onAdd, maxVolume, currentVolume, maxWeight, curr
           </span>
           <button
             onClick={() => onAdd(quantity)}
-            disabled={quantity > maxPossibleBoxes || quantity <= 0}
+            disabled={!canAdd}
             className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Add to Container

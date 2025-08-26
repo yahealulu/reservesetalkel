@@ -17,7 +17,7 @@ const Categories = () => {
   const { data: categoriesData, isLoading, error } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const { data } = await axios.get('https://setalkel.amjadshbib.com/api/categories');
+      const { data } = await axios.get('https://st.amjadshbib.com/api/categories');
       return data?.data;
     },
   });
@@ -83,7 +83,7 @@ const Categories = () => {
           >
             <div className="aspect-square relative overflow-hidden bg-gray-50">
               <Image
-                src={`https://setalkel.amjadshbib.com/public/${category.image}`}
+                src={`https://st.amjadshbib.com/api/public/${category.image}`}
                 alt={category.name_translations?.[currentLocale] || category.name_translations?.en || 'Category'}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-110"

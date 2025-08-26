@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     const token = localStorage.getItem('token');
     try {
-      await fetch('https://setalkel.amjadshbib.com/api/logout', {
+      await fetch('https://st.amjadshbib.com/api/logout', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

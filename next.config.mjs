@@ -11,7 +11,9 @@ const nextConfig = {
       'pngall.com',
       'www.pngall.com',
       'oatly.com',
-      'setalkel.amjadshbib.com'
+      'st.amjadshbib.com',
+      'st.amjadshbib.com'
+
     ],
   },
 

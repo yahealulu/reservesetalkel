@@ -12,7 +12,7 @@ export default function PrivacyPolicyPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["privacy-policy"],
     queryFn: async () => {
-      const { data } = await axios.get("https://setalkel.amjadshbib.com/api/privacy-policies");
+      const { data } = await axios.get("https://st.amjadshbib.com/api/privacy-policies");
       return data?.data;
     },
   });

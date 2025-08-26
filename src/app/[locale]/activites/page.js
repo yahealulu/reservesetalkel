@@ -17,7 +17,7 @@ export default function Activities() {
   const { data: activities, isLoading, error } = useQuery({
     queryKey: ['activities'],
     queryFn: async () => {
-      const { data } = await axios.get('https://setalkel.amjadshbib.com/api/activities');
+      const { data } = await axios.get('https://st.amjadshbib.com/api/activities');
       return data?.data || [];
     },
   });
@@ -133,7 +133,7 @@ const ActivityCard = ({ activity, locale }) => {
         <div className="relative h-56 w-full">
           {activity.image ? (
             <Image
-              src={`https://setalkel.amjadshbib.com/public/${activity.image}`}
+              src={`https://st.amjadshbib.com/api/public/${activity.image}`}
               alt={activity.name_translations?.[locale] || activity.name_translations?.en || 'Activity'}
               fill
               className="object-cover"

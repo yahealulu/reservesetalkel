@@ -17,7 +17,7 @@ const NewProducts = () => {
   const { data: newProducts, error, isLoading } = useQuery({
     queryKey: ['get-new-products'],
     queryFn: async () => {
-      const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/getnewvariants`);
+      const { data } = await axios.get(`https://st.amjadshbib.com/api/getnewvariants`);
       return data?.data;
     },
   });
@@ -98,9 +98,9 @@ const NewProducts = () => {
                   >
                     <Image
                       src={product.image && product.image !== 'null'
-                        ? `https://setalkel.amjadshbib.com/public/${product.image}`
+                        ? `https://st.amjadshbib.com/api/public/${product.image}`
                         : product.product?.image && product.product.image !== 'null'
-                          ? `https://setalkel.amjadshbib.com/public/${product.product.image}`
+                          ? `https://st.amjadshbib.com/api/public/${product.product.image}`
                           : '/placeholder-product.jpg'}
                       alt={product.product?.name_translations?.[currentLocale] || product.product?.name_translations?.en || 'Product'}
                       fill

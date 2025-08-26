@@ -15,7 +15,7 @@ export default function ActivityDetail({ params }) {
   const { data: activity, isLoading, error } = useQuery({
     queryKey: ['activity', unwrappedParams.id],
     queryFn: async () => {
-      const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/activities/${unwrappedParams.id}`);
+      const { data } = await axios.get(`https://st.amjadshbib.com/api/activities/${unwrappedParams.id}`);
       return data?.data || null;
     },
   });
@@ -90,7 +90,7 @@ export default function ActivityDetail({ params }) {
           >
             <div className="relative h-[60vh] w-full">
               <Image
-                src={`https://setalkel.amjadshbib.com/public/${activity.image}`}
+                src={`https://st.amjadshbib.com/api/public/${activity.image}`}
                 alt={activity.name_translations?.[locale] || activity.name_translations?.en || 'Activity'}
                 fill
                 className="object-cover"
@@ -175,7 +175,7 @@ const EventCard = ({ event, locale, index }) => {
   
   // Prepare gallery images
   const galleryImages = event.gallery?.length > 0 
-    ? event.gallery.map(img => `https://setalkel.amjadshbib.com/public/${img.image_path}`)
+    ? event.gallery.map(img => `https://st.amjadshbib.com/api/public/${img.image_path}`)
     : [];
   
   // Handle gallery navigation

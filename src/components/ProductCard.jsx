@@ -36,7 +36,7 @@ const ProductCard = ({ product }) => {
                     transition={{ duration: 0.3 }}
                 >
                     <Image
-                        src={product.image ? `https://setalkel.amjadshbib.com/public/${product.image}` : '/placeholder-product.jpg'}
+                        src={product.image ? `https://st.amjadshbib.com/api/public/${product.image}` : '/placeholder-product.jpg'}
                         alt={product.name_translations?.[currentLocale] || product.name_translations?.en || 'Product'}
                         fill
                         className="object-cover"

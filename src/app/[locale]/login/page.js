@@ -23,7 +23,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://setalkel.amjadshbib.com/api/login', {
+      const response = await fetch('https://st.amjadshbib.com/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

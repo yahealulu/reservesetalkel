@@ -17,7 +17,7 @@ const TopSellingProducts = () => {
   const { data: topProducts, error, isLoading } = useQuery({
     queryKey: ['get-top-products-country'],
     queryFn: async () => {
-      const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/top-products-country`);
+      const { data } = await axios.get(`https://st.amjadshbib.com/api/top-products-country`);
       return data?.data;
     },
   });
@@ -139,7 +139,7 @@ const TopSellingProducts = () => {
                       {/* Product Image */}
                       <Image
                         src={product.image 
-                          ? `https://setalkel.amjadshbib.com/public/${product.image}`
+                          ? `https://st.amjadshbib.com/api/public/${product.image}`
                           : '/placeholder-product.jpg'}
                         alt={product.product_name?.[currentLocale] || product.product_name?.en || 'Product'}
                         fill

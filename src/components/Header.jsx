@@ -56,7 +56,7 @@ const Header = () => {
     
     setIsLoading(true);
     try {
-      const response = await fetch('https://setalkel.amjadshbib.com/api/categories');
+      const response = await fetch('https://st.amjadshbib.com/api/categories');
       const data = await response.json();
       
       if (data.data && Array.isArray(data.data)) {
@@ -439,7 +439,7 @@ const Header = () => {
                           >
                             <div className="aspect-square relative overflow-hidden bg-gray-100">
                               <img
-                                src={`https://setalkel.amjadshbib.com/public/${category.image}`}
+                                src={`https://st.amjadshbib.com/api/public/${category.image}`}
                                 alt={category.name_translations[currentLocale] || category.name_translations.en}
                                 className="w-full h-full object-cover"
                               />

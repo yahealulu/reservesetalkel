@@ -38,7 +38,7 @@ const CountriesSection = () => {
     const { data: countries, isLoading, error } = useQuery({
         queryKey: ['get-countries'],
         queryFn: async () => {
-            const { data } = await axios.get(`https://setalkel.amjadshbib.com/api/countries`);
+            const { data } = await axios.get(`https://st.amjadshbib.com/api/countries`);
             return data?.data;
         },
     });

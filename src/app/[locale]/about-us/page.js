@@ -14,7 +14,7 @@ export default function AboutUs() {
   const { data: aboutData, isLoading, error } = useQuery({
     queryKey: ['about-us'],
     queryFn: async () => {
-      const { data } = await axios.get('https://setalkel.amjadshbib.com/api/about-us');
+      const { data } = await axios.get('https://st.amjadshbib.com/api/about-us');
       return data?.data;
     },
   });
@@ -42,7 +42,7 @@ export default function AboutUs() {
     })).filter(slide => slide.url) || []),
     ...(aboutData.gallery?.map(image => ({ 
       type: 'image', 
-      url: `https://setalkel.amjadshbib.com/public/${image.image_path}` 
+      url: `https://st.amjadshbib.com/api/public/${image.image_path}` 
 
     })) || [])
   ] : [];

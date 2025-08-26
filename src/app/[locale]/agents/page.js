@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 
-const AGENTS_API = 'https://setalkel.amjadshbib.com/api/Agents';
+const AGENTS_API = 'https://st.amjadshbib.com/api/Agents';
 
 export default function AgentsPage() {
   const pathname = usePathname();
@@ -62,7 +62,7 @@ export default function AgentsPage() {
               {/* Image Container - Square with modern styling */}
               <div className="relative w-full h-56 bg-gradient-to-r from-[#c8a27a] to-[#e2c9a8] overflow-hidden">
                 <Image
-                  src={`https://setalkel.amjadshbib.com/public/${agent.image}`}
+                  src={`https://st.amjadshbib.com/api/public/${agent.image}`}
                   alt={agent.name}
                   fill
                   className="object-cover"
@@ -95,10 +95,7 @@ export default function AgentsPage() {
                     <span className="text-sm">{agent.email}</span>
                   </div>
                 </div>
-                
-                <button className="mt-6 w-full py-2.5 px-4 bg-gradient-to-r from-[#c8a27a] to-[#e2c9a8] text-white font-medium rounded-lg hover:opacity-90 transition-opacity duration-300 text-sm">
-                  {locale === 'ar' ? 'تواصل مع الوكيل' : 'Contact Agent'}
-                </button>
+               
               </div>
             </motion.div>
           ))}
