@@ -130,9 +130,9 @@ const Header = () => {
                   <MapPin className="w-4 h-4" />
                   <span>{currentLocale === 'ar' ? 'مواقع المتاجر' : 'Store Locations'}</span>
                 </Link>
-                <Link href="tel:(956) 229-7908" className="flex items-center gap-1 text-white/90 hover:text-white transition-colors">
+                <Link href="tel:+966123456789" className="flex items-center gap-1 text-white/90 hover:text-white transition-colors">
                   <Phone className="w-4 h-4" />
-                  <span>(956) 229-7908</span>
+                  <span>+966123456789</span>
                 </Link>
               
                 
