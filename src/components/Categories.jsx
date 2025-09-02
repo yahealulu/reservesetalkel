@@ -13,12 +13,17 @@ const Categories = () => {
   const currentLocale = pathname.split('/')[1] || 'en';
   const isRTL = currentLocale === 'ar';
   const [showAll, setShowAll] = useState(false);
-  
+
   const { data: categoriesData, isLoading, error } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const { data } = await axios.get('https://st.amjadshbib.com/api/categories');
-      return data?.data;
+      try {
+        const { data } = await axios.get('/api/categories');
+        return data?.data;
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        throw error;
+      }
     },
   });
 
@@ -29,7 +34,8 @@ const Categories = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 md:gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
               <div key={index} className="flex flex-col items-center">
-                <div className="w-full aspect-square bg-gray-200 animate-pulse mb-4 rounded-lg"></div>
+                {/* Updated border radius to 20px */}
+                <div className="w-full aspect-square bg-gray-200 animate-pulse mb-4 rounded-[20px]"></div>
                 <div className="h-4 w-20 bg-gray-200 animate-pulse"></div>
               </div>
             ))}
@@ -52,7 +58,7 @@ const Categories = () => {
   }
 
   const categories = categoriesData
-    ? categoriesData.filter(category => !category.is_hidden && category.products_count > 0)
+    ? categoriesData.filter(category => !category.is_hidden && category.products_visible > 0)
     : [];
 
   if (!categories || categories.length === 0) {
@@ -79,24 +85,24 @@ const Categories = () => {
           <Link
             key={category.id}
             href={`/${params?.locale || 'en'}/category/${category.id}`}
-            className="group relative block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300"
+            className="group relative block overflow-hidden rounded-[20px] shadow-md hover:shadow-xl transition-all duration-300"
           >
-            <div className="aspect-square relative overflow-hidden bg-gray-50">
+            {/* Updated border radius to 20px */}
+            <div className="aspect-square relative overflow-hidden bg-gray-50 rounded-[20px]">
               <Image
-                src={`https://st.amjadshbib.com/api/public/${category.image}`}
+                src={`https://st.amjadshbib.com/api/public${category.image}`}
                 alt={category.name_translations?.[currentLocale] || category.name_translations?.en || 'Category'}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
-              {/* Overlay with product count that appears on hover */}
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-                <motion.div 
+                <motion.div
                   className="bg-white bg-opacity-90 px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   initial={{ scale: 0.8 }}
                   whileHover={{ scale: 1 }}
                 >
                   <span className={`font-medium text-green-600 ${isRTL ? 'font-arabic' : ''}`}>
-                    {category.products_count} {currentLocale === 'ar' ? 'منتج' : 'products'}
+                    {category.products_visible} {currentLocale === 'ar' ? 'منتج' : 'products'}
                   </span>
                 </motion.div>
               </div>
@@ -109,8 +115,6 @@ const Categories = () => {
           </Link>
         ))}
       </div>
-      
-      {/* Show More / Show Less Button */}
       {categories.length > 6 && (
         <div className="flex justify-center mt-10">
           <motion.button
@@ -119,8 +123,8 @@ const Categories = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            {showAll 
-              ? (currentLocale === 'ar' ? 'عرض أقل' : 'Show Less') 
+            {showAll
+              ? (currentLocale === 'ar' ? 'عرض أقل' : 'Show Less')
               : (currentLocale === 'ar' ? 'عرض المزيد' : 'Show More')
             }
           </motion.button>

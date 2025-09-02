@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3004",
-    "build": "node scripts/generate-sw.js && next build",
+    "build": "node scripts/generate-sw.js && next build",   
     "start": "node server.js",
     "start:next": "next start",
     "lint": "next lint",
@@ -49,7 +49,7 @@
     "react-icons": "^5.4.0",
     "react-leaflet": "^5.0.0",
     "react-multi-carousel": "^2.8.5",
-    "react-select": "^5.10.0",
+    "react-select": "^6.10.0",
     "react-toastify": "^11.0.5",
     "swiper": "^11.2.2",
     "tailwind-merge": "^3.0.1",
